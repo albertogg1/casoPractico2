@@ -1,1 +1,12 @@
+**/doc/
+
 *.tfvars
+
+# Generados por terraform
+.terraform/
+.terraform.lock.hcl
+*.info
+*.tfstate
+*.tfstate.backup
+*.pem
+tfplan
