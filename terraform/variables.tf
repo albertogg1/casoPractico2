@@ -7,13 +7,13 @@
 # -------------------------------------------------------------
 
 variable "subscription_id" {
-  description = "ID de la suscripción de Azure. Obtenlo con: az account show"
+  description = "ID de la suscripción de Azure"
   type        = string
   sensitive   = true 
 }
 
 variable "tenant_id" {
-  description = "ID del tenant de Azure. Obtenlo con: az account show"
+  description = "ID del tenant de Azure"
   type        = string
   sensitive   = true
 }

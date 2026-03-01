@@ -1,0 +1,36 @@
+# =============================================================
+# Tareas de configuración de la VM
+# =============================================================
+
+# -------------------------------------------------------------
+# INSTALAR PODMAN
+# -------------------------------------------------------------
+- name: Instalar Podman
+  apt:
+    name: podman
+    state: present  # "present" = instalar si no está instalado
+  become: true
+
+# -------------------------------------------------------------
+# DESCARGAR IMAGEN NGINX
+# -------------------------------------------------------------
+# Usamos el módulo de Ansible para Podman
+# Equivale a: podman pull docker.io/library/nginx:latest
+- name: Descargar imagen NGINX desde DockerHub
+  containers.podman.podman_image:
+    name: docker.io/library/nginx
+    tag: latest
+    state: present
+
+# -------------------------------------------------------------
+# ARRANCAR CONTENEDOR NGINX
+# -------------------------------------------------------------
+# Equivale a: podman run -d --name nginx -p 80:80 nginx
+- name: Arrancar contenedor NGINX
+  containers.podman.podman_container:
+    name: nginx              # Nombre del contenedor
+    image: docker.io/library/nginx:latest
+    state: started           # "started" = arrancar si no está corriendo
+    ports:
+      - "80:80"              # Puerto VM:Puerto contenedor
+    restart_policy: always   # Reinicia el contenedor si se cae o reinicia la VM

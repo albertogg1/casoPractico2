@@ -1,0 +1,5 @@
+- name: Configurar VM con Podman y desplegar NGINX
+  hosts: vm                    # Ejecuta en las máquinas del grupo [vm]
+  become: true                 # Ejecuta con permisos de administrador (sudo)
+  roles:
+    - vm                       # Llama al rol vm (roles/vm/tasks/main.yml)
