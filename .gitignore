@@ -1,8 +1,11 @@
 /venv
 .vscode
 
+/informe/
+
 **/doc/
 
+secrets.yml
 *.tfvars
 
 # Generados por terraform

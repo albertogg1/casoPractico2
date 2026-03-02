@@ -21,15 +21,24 @@
   become: true
 
 # -------------------------------------------------------------
-# DESCARGAR IMAGEN NGINX
+# LOGIN EN EL ACR
 # -------------------------------------------------------------
-# Usamos el módulo de Ansible para Podman
-# Equivale a: podman pull docker.io/library/nginx:latest
-- name: Descargar imagen NGINX desde DockerHub
+# La VM necesita autenticarse en el ACR para descargar imágenes
+- name: Login en el ACR desde la VM
+  containers.podman.podman_login:
+    registry: "{{ acr_login_server }}"
+    username: "{{ acr_username }}"
+    password: "{{ acr_password }}"
+
+# -------------------------------------------------------------
+# PULL DE IMAGEN NGINX DESDE EL ACR
+# -------------------------------------------------------------
+- name: Descargar imagen NGINX desde el ACR
   containers.podman.podman_image:
-    name: docker.io/library/nginx
+    name: "{{ acr_login_server }}/nginx"
     tag: latest
     state: present
+
 
 # -------------------------------------------------------------
 # ARRANCAR CONTENEDOR NGINX

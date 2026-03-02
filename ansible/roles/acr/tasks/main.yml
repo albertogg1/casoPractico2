@@ -1,0 +1,51 @@
+---
+# =============================================================
+# roles/acr/tasks/main.yml - Gestión de imágenes en el ACR
+# =============================================================
+# Se ejecuta en localhost (WSL)
+# Descarga imágenes de DockerHub, las etiqueta y las sube al ACR
+# =============================================================
+
+# -------------------------------------------------------------
+# 1. LOGIN EN EL ACR
+# -------------------------------------------------------------
+# Nos autenticamos en el ACR para poder hacer push de imágenes
+# Equivale a: podman login acrcasopractico2.azurecr.io
+- name: Login en el ACR
+  containers.podman.podman_login:
+    registry: "{{ acr_login_server }}"
+    username: "{{ acr_username }}"
+    password: "{{ acr_password }}"
+
+# -------------------------------------------------------------
+# 2. PULL DE IMAGEN NGINX DESDE DOCKERHUB
+# -------------------------------------------------------------
+# Descargamos la imagen de NGINX desde el repositorio público
+# Equivale a: podman pull docker.io/library/nginx:latest
+- name: Pull imagen NGINX desde DockerHub
+  containers.podman.podman_image:
+    name: docker.io/library/nginx
+    tag: latest
+    state: present
+
+# -------------------------------------------------------------
+# 3. TAG DE LA IMAGEN NGINX
+# -------------------------------------------------------------
+# Renombramos la imagen con la URL de nuestro ACR
+# Equivale a: podman tag nginx:latest acr.azurecr.io/nginx:latest
+- name: Tag imagen NGINX para el ACR
+  containers.podman.podman_tag:
+    image: docker.io/library/nginx:latest
+    target_names:
+      - "{{ acr_login_server }}/nginx:latest"
+
+# -------------------------------------------------------------
+# 4. PUSH DE LA IMAGEN NGINX AL ACR
+# -------------------------------------------------------------
+# Subimos la imagen renombrada a nuestro ACR privado
+# Equivale a: podman push acr.azurecr.io/nginx:latest
+- name: Push imagen NGINX al ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/nginx:latest"
+    push: true
+    state: present

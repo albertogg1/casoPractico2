@@ -1,5 +1,18 @@
-- name: Configurar VM con Podman y desplegar NGINX
-  hosts: vm                    # Ejecuta en las máquinas del grupo [vm]
-  become: true                 # Ejecuta con permisos de administrador (sudo)
-  roles:
-    - vm                       # Llama al rol vm (roles/vm/tasks/main.yml)
+- name: Setup ACR and images
+  hosts: localhost
+  vars_files: 
+    - secrets.yml
+  tasks:
+    - name: Pull, build, tag and push images to ACR
+      include_role:
+        name: acr
+
+
+- name: Setup Webserver
+  hosts: vm
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Configure VM with Podman and deploy web server
+      include_role:
+        name: vm
