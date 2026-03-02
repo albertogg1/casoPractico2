@@ -18,7 +18,6 @@ variable "tenant_id" {
   sensitive   = true
 }
 
-
 # -------------------------------------------------------------
 # GENERAL
 # -------------------------------------------------------------
@@ -55,4 +54,13 @@ variable "admin_username" {
   description = "Usuario administrador de la VM Linux"
   type        = string
   default     = "azureuser"
+}
+
+# -------------------------------------------------------------
+# ACR - Azure Container Registry
+# -------------------------------------------------------------
+variable "acr_name" {
+  description = "Nombre del ACR en Azure"
+  type        = string
+  default     = "acrcasopractico2albertogarciagarcia"
 }

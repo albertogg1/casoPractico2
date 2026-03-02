@@ -13,7 +13,7 @@
 # -------------------------------------------------------------
 resource "tls_private_key" "ssh_key" {
   algorithm = "RSA"
-  rsa_bits  = 4096  # Longitud de la clave, 4096 es muy segura
+  rsa_bits  = 4096
 }
 
 # Guardamos la clave privada en un fichero local
