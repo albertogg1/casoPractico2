@@ -45,3 +45,12 @@ output "acr_admin_password" {
   sensitive   = true
 }
 
+# -------------------------------------------------------------
+# AKS
+# -------------------------------------------------------------
+output "kube_config" {
+  description = "Kubeconfig del cluster AKS (raw)"
+  value       = azurerm_kubernetes_cluster.aks.kube_config_raw
+  sensitive   = true
+}
+

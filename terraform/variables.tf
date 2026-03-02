@@ -64,3 +64,18 @@ variable "acr_name" {
   type        = string
   default     = "acrcasopractico2albertogarciagarcia"
 }
+
+# -------------------------------------------------------------
+# AKS - Cluster
+# -------------------------------------------------------------
+variable "aks_node_count" {
+  description = "Número de nodos del cluster AKS"
+  type        = number
+  default     = 1
+}
+
+variable "aks_node_size" {
+  description = "Tamaño de máquina para los nodos AKS"
+  type        = string
+  default     = "Standard_B2s"
+}
