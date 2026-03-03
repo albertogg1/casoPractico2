@@ -52,3 +52,4 @@
     ports:
       - "80:80"              # Puerto VM:Puerto contenedor
     restart_policy: always   # Reinicia el contenedor si se cae o reinicia la VM
+  become: true               # Necesita privilegios para usar puerto <1024

@@ -2,13 +2,10 @@
 host_key_checking=False
 
 [vm]
-${vm_public_ip} ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
+20.199.122.126 ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
 
 [acr]
 localhost
 
-[all:vars]
-acr_name=acrcasopractico2albertogarciagarcia
-
 [localhost]
-127.0.0.1 ansible_connection=local
+localhost ansible_connection=local

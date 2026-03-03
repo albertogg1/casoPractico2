@@ -77,5 +77,5 @@ variable "aks_node_count" {
 variable "aks_node_size" {
   description = "Tamaño de máquina para los nodos AKS"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_B2s_v2"
 }
