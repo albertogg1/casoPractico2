@@ -1,0 +1,179 @@
+# -------------------------------------------------------------
+# 1. CREAR NAMESPACE
+# -------------------------------------------------------------
+# Agrupamos todos los recursos de la app en un namespace propio
+- name: Crear namespace casopractico2
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: casopractico2
+
+# -------------------------------------------------------------
+# 2. CREAR SECRET PARA ACCEDER AL ACR
+# -------------------------------------------------------------
+# Kubernetes necesita credenciales para descargar imágenes del ACR
+- name: Crear secret de acceso al ACR
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: acr-secret
+        namespace: casopractico2
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: "{{ {'auths': {acr_login_server: {'username': acr_username, 'password': acr_password, 'auth': (acr_username + ':' + acr_password) | b64encode}}} | to_json | b64encode }}"
+
+# -------------------------------------------------------------
+# 3. PERSISTENTVOLUMECLAIM PARA REDIS
+# -------------------------------------------------------------
+# Disco persistente para guardar los votos aunque Redis se reinicie
+- name: Crear PersistentVolumeClaim para Redis
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: redis-pvc
+        namespace: casopractico2
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+
+# -------------------------------------------------------------
+# 4. DESPLEGAR REDIS
+# -------------------------------------------------------------
+- name: Desplegar Redis
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: redis
+        namespace: casopractico2
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: redis
+        template:
+          metadata:
+            labels:
+              app: redis
+          spec:
+            containers:
+              - name: redis
+                image: "{{ acr_login_server }}/redis:casoPractico2"
+                ports:
+                  - containerPort: 6379
+                volumeMounts:
+                  - name: redis-storage
+                    mountPath: /data
+            imagePullSecrets:
+              - name: acr-secret
+            volumes:
+              - name: redis-storage
+                persistentVolumeClaim:
+                  claimName: redis-pvc
+
+# -------------------------------------------------------------
+# 5. SERVICE PARA REDIS
+# -------------------------------------------------------------
+# ClusterIP: solo accesible dentro del clúster
+# El frontend se conectará a Redis usando este service
+- name: Crear Service para Redis
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: redis
+        namespace: casopractico2
+      spec:
+        selector:
+          app: redis
+        ports:
+          - port: 6379
+            targetPort: 6379
+
+# -------------------------------------------------------------
+# 6. DESPLEGAR AZURE-VOTE-FRONT
+# -------------------------------------------------------------
+- name: Desplegar azure-vote-front
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: azure-vote-front
+        namespace: casopractico2
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: azure-vote-front
+        template:
+          metadata:
+            labels:
+              app: azure-vote-front
+          spec:
+            containers:
+              - name: azure-vote-front
+                image: "{{ acr_login_server }}/azure-vote-front:casoPractico2"
+                ports:
+                  - containerPort: 80
+                env:
+                  - name: REDIS
+                    value: "redis"  # Nombre del Service de Redis
+            imagePullSecrets:
+              - name: acr-secret
+
+# -------------------------------------------------------------
+# 7. SERVICE LOADBALANCER PARA AZURE-VOTE-FRONT
+# -------------------------------------------------------------
+# LoadBalancer: crea una IP pública en Azure para acceder desde internet
+- name: Crear Service LoadBalancer para azure-vote-front
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: azure-vote-front
+        namespace: casopractico2
+      spec:
+        type: LoadBalancer
+        selector:
+          app: azure-vote-front
+        ports:
+          - port: 80
+            targetPort: 80
+
+# -------------------------------------------------------------
+# 8. OBTENER IP DEL LOADBALANCER
+# -------------------------------------------------------------
+# Esperamos a que Azure asigne la IP pública y la mostramos
+- name: Esperar a que el LoadBalancer tenga IP pública
+  kubernetes.core.k8s_info:
+    kind: Service
+    name: azure-vote-front
+    namespace: casopractico2
+  register: service_info
+  until: service_info.resources[0].status.loadBalancer.ingress is defined
+  retries: 20
+  delay: 15
+
+- name: Mostrar IP pública de la aplicación
+  debug:
+    msg: "🌐 Aplicación disponible en: http://{{ service_info.resources[0].status.loadBalancer.ingress[0].ip }}"
