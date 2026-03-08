@@ -37,7 +37,7 @@
   containers.podman.podman_tag:
     image: docker.io/library/nginx:latest
     target_names:
-      - "{{ acr_login_server }}/nginx:latest"
+      - "{{ acr_login_server }}/nginx:casoPractico2"
 
 # -------------------------------------------------------------
 # 4. PUSH DE LA IMAGEN NGINX AL ACR
@@ -46,6 +46,48 @@
 # Equivale a: podman push acr.azurecr.io/nginx:latest
 - name: Push imagen NGINX al ACR
   containers.podman.podman_image:
-    name: "{{ acr_login_server }}/nginx:latest"
+    name: "{{ acr_login_server }}/nginx:casoPractico2"
+    push: true
+    state: present
+
+# -------------------------------------------------------------
+# REDIS
+# -------------------------------------------------------------
+- name: Pull imagen Redis desde DockerHub
+  containers.podman.podman_image:
+    name: docker.io/library/redis
+    tag: 6.0.8
+    state: present
+
+- name: Tag imagen Redis para el ACR
+  containers.podman.podman_tag:
+    image: docker.io/library/redis:6.0.8
+    target_names:
+      - "{{ acr_login_server }}/redis:casoPractico2"
+
+- name: Push imagen Redis al ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/redis:casoPractico2"
+    push: true
+    state: present
+
+# -------------------------------------------------------------
+# AZURE VOTE FRONT
+# -------------------------------------------------------------
+- name: Pull imagen azure-vote-front desde DockerHub
+  containers.podman.podman_image:
+    name: docker.io/jsosa15/azure-vote-front
+    tag: v1
+    state: present
+
+- name: Tag imagen azure-vote-front para el ACR
+  containers.podman.podman_tag:
+    image: docker.io/jsosa15/azure-vote-front:v1
+    target_names:
+      - "{{ acr_login_server }}/azure-vote-front:casoPractico2"
+
+- name: Push imagen azure-vote-front al ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/azure-vote-front:casoPractico2"
     push: true
     state: present

@@ -2,7 +2,7 @@
 host_key_checking=False
 
 [vm]
-20.199.122.126 ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
+20.216.181.254 ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
 
 [acr]
 localhost

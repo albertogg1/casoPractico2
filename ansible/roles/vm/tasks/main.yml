@@ -36,7 +36,7 @@
 - name: Descargar imagen NGINX desde el ACR
   containers.podman.podman_image:
     name: "{{ acr_login_server }}/nginx"
-    tag: latest
+    tag: casoPractico2
     state: present
 
 
@@ -47,7 +47,7 @@
 - name: Arrancar contenedor NGINX
   containers.podman.podman_container:
     name: nginx              # Nombre del contenedor
-    image: docker.io/library/nginx:latest
+    image: "{{ acr_login_server }}/nginx:casoPractico2"
     state: started           # "started" = arrancar si no está corriendo
     ports:
       - "80:80"              # Puerto VM:Puerto contenedor
