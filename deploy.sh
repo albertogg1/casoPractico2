@@ -37,7 +37,18 @@ echo "✅ VM IP: $VM_IP"
 echo "✅ ACR: $ACR_SERVER"
 
 # -------------------------------------------------------------
-# 3. GENERAR SECRETS.YML
+# 3. ACTUALIZAR KUBECONFIG
+# -------------------------------------------------------------
+echo ""
+echo "🔑 Actualizando credenciales de kubectl para el AKS..."
+az aks get-credentials \
+  --resource-group rg-casopractico2 \
+  --name aks-casopractico2 \
+  --overwrite-existing
+echo "✅ kubeconfig actualizado"
+
+# -------------------------------------------------------------
+# 4. GENERAR SECRETS.YML
 # -------------------------------------------------------------
 echo ""
 echo "🔐 Generando secrets.yml..."
@@ -49,7 +60,7 @@ EOF
 echo "✅ secrets.yml generado"
 
 # -------------------------------------------------------------
-# 4. ACTUALIZAR HOSTS
+# 5. ACTUALIZAR HOSTS
 # -------------------------------------------------------------
 echo ""
 echo "📋 Actualizando inventario de Ansible..."
@@ -66,7 +77,7 @@ EOF
 echo "✅ hosts actualizado con IP: $VM_IP"
 
 # -------------------------------------------------------------
-# 5. ANSIBLE
+# 6. ANSIBLE
 # -------------------------------------------------------------
 echo ""
 echo "⚙️  Ejecutando Ansible..."
@@ -92,7 +103,7 @@ while [ -z "$VOTE_IP" ] && [ $RETRIES -gt 0 ]; do
 done
 
 # -------------------------------------------------------------
-# 6. RESUMEN FINAL
+# 7. RESUMEN FINAL
 # -------------------------------------------------------------
 echo ""
 echo "=================================================="
@@ -101,7 +112,7 @@ echo "=================================================="
 echo ""
 echo "🌐 Servidor NGINX:     http://${VM_IP}"
 echo "📦 ACR:                ${ACR_SERVER}"
-echo "🗳️  App de votación:   http://${VOTE_IP}"
+echo "🗳️ App de votación:    http://${VOTE_IP}"
 echo ""
 echo "Para obtener la IP de la app de votación:"
 echo "kubectl get services -n casopractico2"
@@ -109,4 +120,3 @@ echo ""
 echo "Para destruir la infraestructura:"
 echo "cd terraform && terraform destroy"
 echo "=================================================="
-```

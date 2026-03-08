@@ -1,5 +1,5 @@
 [vm]
-20.111.42.219 ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
+20.19.191.90 ansible_user=azureuser ansible_ssh_private_key_file=../terraform/private_key.pem
 
 [acr]
 localhost ansible_connection=local
